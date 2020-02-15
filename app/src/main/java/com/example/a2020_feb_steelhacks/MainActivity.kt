@@ -18,10 +18,10 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         button1.setOnClickListener {
-            editText2.setText("bla")
+            val storeId = editText.text.toString()
+            val productName = editText2.text.toString()
+            findProduct(productName, storeId)
         }
-
-        findProduct("orange+juice", "2757")
     }
 
     fun searchButtonHandler(){
@@ -51,7 +51,12 @@ class MainActivity : AppCompatActivity() {
                     val searchResponse = responseJSON.getJSONObject("search_response")
                     val items = searchResponse.getJSONObject("items")
                     val item = items.getJSONArray("Item")
-                    val productTcin = item.getJSONObject(0).getString("tcin")
+                    var productTcin = ""
+                    try {
+                        productTcin = item.getJSONObject(0).getString("tcin")
+                    } catch (e: Error) {
+
+                    }
                     targetGetRequest(productTcin) {
                             if (it == 1) {
                                 locationIcon.x = mensBtn.marginLeft.toFloat()
