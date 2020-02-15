@@ -24,8 +24,8 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         button1.setOnClickListener {
-            val storeId = productInput.text.toString()
-            val productName = storeIdInput.text.toString()
+            val productName = productInput.text.toString()
+            val storeId = storeIdInput.text.toString()
             findProduct(productName, storeId)
         }
 
@@ -61,7 +61,7 @@ class MainActivity : AppCompatActivity() {
                     for (i in 0 until item.length()) {
                         var productTcin = item.getJSONObject(i).getString("tcin")
                         //targetGetRequest(productTcin)
-                        val price = item.getJSONObject(i).getJSONObject("price").getString("current_retail").toFloat()
+                        //val price = item.getJSONObject(i).getJSONObject("price").getString("current_retail").toFloat()
                         //var productTcin = ""
                         try {
                             productTcin = item.getJSONObject(0).getString("tcin")
