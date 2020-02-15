@@ -1,8 +1,13 @@
 package com.example.a2020_feb_steelhacks
 
 import android.annotation.TargetApi
+import android.app.AlertDialog
+import android.content.DialogInterface
+import android.content.Intent
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.os.Looper
 import android.widget.Button
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
@@ -17,9 +22,11 @@ import java.io.IOException
 
 
 class MainActivity : AppCompatActivity() {
+
     //var userSearchQueries = arrayOfNulls<String>(3)
 
     var client = OkHttpClient()
+    //var demo = true
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -27,6 +34,7 @@ class MainActivity : AppCompatActivity() {
         button1.setOnClickListener {
             val productName = productInput.text.toString()
             val storeId = storeIdInput.text.toString()
+            //comparePriceToAmazon("apples", 7.5.toFloat())
             findProduct(productName, storeId)
         }
 
@@ -60,10 +68,22 @@ class MainActivity : AppCompatActivity() {
                     val searchResponse = responseJSON.getJSONObject("search_response")
                     val items = searchResponse.getJSONObject("items")
                     val item = items.getJSONArray("Item")
-                    for (i in 0 until item.length()) {
+                    val i = 0
                         var productTcin = item.getJSONObject(i).getString("tcin")
                         //targetGetRequest(productTcin)
-                        //val price = item.getJSONObject(i).getJSONObject("price").getString("current_retail").toFloat()
+                        var targetFirstPrice = item.getJSONObject(i).getJSONObject("price").getString("current_retail").toFloat()
+                        println("Target price: " + targetFirstPrice)
+                        if (productName == "demo") {
+                            targetFirstPrice = 0.10.toFloat()
+                            println("Target price for demo: " + targetFirstPrice)
+                        }
+                        var scrapedAmazonReturn = comparePriceToAmazon(productName, targetFirstPrice)
+                        var scrapedAmazonPrice = scrapedAmazonReturn.first
+                        var amazonURL = scrapedAmazonReturn.second
+                        if (scrapedAmazonPrice < targetFirstPrice){
+                            cheaperPopup(amazonURL)
+                        }
+                        // popup if price is lower elsewhere
                         //var productTcin = ""
                         try {
                             productTcin = item.getJSONObject(0).getString("tcin")
@@ -97,12 +117,11 @@ class MainActivity : AppCompatActivity() {
                                 locationIcon.y = homeStorageBtn.marginTop.toFloat() - homeStorageBtn.height.toFloat()/2.toFloat()
                             }
                         }
-                    }
+
                 } catch (e: Error) {
                     println(e)
                 }
             }
-
         })
     }
 
@@ -146,15 +165,43 @@ class MainActivity : AppCompatActivity() {
         })
     }
 
-    fun comparePriceToAmazon(productName: String, targetPrice: Float){
-        var doc = Jsoup.connect("https://www.amazon.com/s?k=$productName&ref=nb_sb_noss_2").get()
-        var element = doc.select("[data-cel-widget=\"search_result_3\"]")
-        println(element)
-
+    fun comparePriceToAmazon(productName: String, targetPrice: Float): Pair<Float, String>{
+        var url = "https://www.amazon.com/s?k=$productName&ref=nb_sb_noss_2"
+        var doc = Jsoup.connect(url).get()
+        //var element = doc.select("[data-cel-widget=\"search_result_3\"]")
+        var elements = doc.select("span.a-offscreen")
+        var priceList = elements.text().replace("$","").split(" ")
+        var minPrice = 0.toFloat()
+        for (p in priceList){
+            if (p.toFloat() < minPrice || minPrice == 0.toFloat() ){
+                minPrice = p.toFloat()
+            }
+        }
+        println(minPrice)
+        //println(elements.text().replace("$",""))
+        return Pair(minPrice, url)
     }
 
-    fun snapMarkerToButton(location: String?){
-        var aisle1 = findViewById<Button>(R.id.sportswearBtn)
-        var aisle2 = findViewById<Button>(R.id.mensBtn)
+    fun cheaperPopup(url: String){
+        runOnUiThread {
+            val d = AlertDialog.Builder(this)
+            d.setMessage("Cheaper option at Amazon found! Would you like to check it out bro?")
+                .setCancelable(false)
+                .setPositiveButton("Go to Amazon", DialogInterface.OnClickListener { dialog, id ->
+                    goToURL(url)
+                })
+                .setNegativeButton("No thanks", DialogInterface.OnClickListener { dialog, id ->
+                    dialog.cancel()
+                })
+            val alert = d.create()
+            alert.setTitle("Leave?")
+            alert.show()
+        }
+    }
+
+    fun goToURL(url: String){
+        val i = Intent(Intent.ACTION_VIEW)
+        i.data = Uri.parse(url)
+        startActivity(i)
     }
 }
