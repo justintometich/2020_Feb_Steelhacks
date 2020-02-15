@@ -2,6 +2,8 @@ package com.example.a2020_feb_steelhacks
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.marginLeft
+import androidx.core.view.marginTop
 import kotlinx.android.synthetic.main.activity_main.*
 import okhttp3.*
 import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
@@ -19,12 +21,16 @@ class MainActivity : AppCompatActivity() {
             editText2.setText("bla")
         }
 
-        findProduct("toilet+paper", "2757")
+        //findProduct("toilet+paper", "2757")
+
+        locationIcon.x = mensBtn.marginLeft.toFloat()
+        locationIcon.y = mensBtn.marginTop.toFloat() + 350.0.toFloat()
     }
 
     fun searchButtonHandler(){
 
     }
+
 
 
     fun findProduct(productName: String, storeId: String) {
