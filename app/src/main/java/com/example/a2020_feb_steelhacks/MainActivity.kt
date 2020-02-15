@@ -13,8 +13,6 @@ import java.io.IOException
 
 
 class MainActivity : AppCompatActivity() {
-
-    val eastLibertyStoreId = "2757"
     var userSearchQueries = arrayOfNulls<String>(3)
 
     var client = OkHttpClient()
@@ -22,10 +20,12 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         button1.setOnClickListener {
-            editText2.setText("bla")
+            val storeId = editText.text.toString()
+            val productName = editText2.text.toString()
+            findProduct(productName, storeId)
         }
 
-        //findProduct("toilet+paper", eastLibertyStoreId)
+        //findProduct("toilet+paper", "2757")
 
         locationIcon.x = mensBtn.marginLeft.toFloat()
         locationIcon.y = mensBtn.marginTop.toFloat() + 350.0.toFloat()
@@ -62,8 +62,27 @@ class MainActivity : AppCompatActivity() {
                         val productTcin = item.getJSONObject(i).getString("tcin")
                         targetGetRequest(productTcin)
                         val price = item.getJSONObject(i).getJSONObject("price").getString("current_retail").toFloat()
+                    var productTcin = ""
+                    try {
+                        productTcin = item.getJSONObject(0).getString("tcin")
+                    } catch (e: Error) {
 
                     }
+                    targetGetRequest(productTcin) {
+                            if (it == 1) {
+                                locationIcon.x = mensBtn.marginLeft.toFloat()
+                                locationIcon.y = mensBtn.marginTop.toFloat()
+                            } else if (it == 50) {
+                                locationIcon.x = menswearBtn.marginLeft.toFloat() + 50.toFloat()
+                                locationIcon.y = menswearBtn.marginTop.toFloat() - 100.toFloat()
+                            } else if (it == 7) {
+                                locationIcon.x = shoesBtn.marginLeft.toFloat()
+                                locationIcon.y = shoesBtn.marginTop.toFloat()- 90.toFloat()
+                            } else if (it == 18) {
+                                locationIcon.x = homeStorageBtn.marginLeft.toFloat()
+                                locationIcon.y = homeStorageBtn.marginTop.toFloat() - 150.toFloat()
+                            }
+                        }
                 } catch (e: Error) {
                     println(e)
                 }
@@ -73,7 +92,7 @@ class MainActivity : AppCompatActivity() {
     }
 
 
-    fun targetGetRequest(productId: String?){
+    fun targetGetRequest(productId: String?, callback: (Int) -> Unit){
 
         val httpBuilder =
             "https://redsky.target.com/v1/location_details/$productId".toHttpUrlOrNull()!!.newBuilder()
@@ -100,10 +119,9 @@ class MainActivity : AppCompatActivity() {
                     if (inStoreLocation.isNull("status_code") && inStoreLocation.length() > 0) {
                         val block = inStoreLocation.getString("block")
                         val aisle = inStoreLocation.getString("aisle")
-                        println("Block: " + block + " Aisle: " + aisle)
-                        //println(inStoreLocation)
+                        println(aisle)
+                        callback(aisle.toInt())
                     } else {
-                        println("Status Code 200")
                     }
                 } catch (e: Error) {
                     println(e)
