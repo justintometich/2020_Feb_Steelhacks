@@ -30,7 +30,7 @@ class MainActivity : AppCompatActivity() {
             findProduct(productName, storeId)
         }
 
-        comparePriceToAmazon("apples", 7.5.toFloat())
+        //comparePriceToAmazon("apples", 7.5.toFloat())
         //findProduct("toilet+paper", "2757")
 
         //locationIcon.x = mensBtn.marginLeft.toFloat()
