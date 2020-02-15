@@ -100,4 +100,8 @@ class MainActivity : AppCompatActivity() {
 
         })
     }
+
+    fun snapMarkerToButton(location: String?){
+        var buttonToSnapTo = getElementByID(location)
+    }
 }
