@@ -1,6 +1,7 @@
 package com.example.a2020_feb_steelhacks
 
 import android.os.Bundle
+import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.marginLeft
 import androidx.core.view.marginTop
@@ -13,6 +14,9 @@ import java.io.IOException
 
 class MainActivity : AppCompatActivity() {
 
+    val eastLibertyStoreId = "2757"
+    var userSearchQueries = arrayOfNulls<String>(3)
+
     var client = OkHttpClient()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -21,7 +25,7 @@ class MainActivity : AppCompatActivity() {
             editText2.setText("bla")
         }
 
-        //findProduct("toilet+paper", "2757")
+        //findProduct("toilet+paper", eastLibertyStoreId)
 
         locationIcon.x = mensBtn.marginLeft.toFloat()
         locationIcon.y = mensBtn.marginTop.toFloat() + 350.0.toFloat()
@@ -57,6 +61,8 @@ class MainActivity : AppCompatActivity() {
                     for (i in 0 until item.length()) {
                         val productTcin = item.getJSONObject(i).getString("tcin")
                         targetGetRequest(productTcin)
+                        val price = item.getJSONObject(i).getJSONObject("price").getString("current_retail").toFloat()
+
                     }
                 } catch (e: Error) {
                     println(e)
@@ -108,6 +114,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun snapMarkerToButton(location: String?){
-        var buttonToSnapTo = getElementByID(location)
+        var aisle1 = findViewById<Button>(R.id.sportswearBtn)
+        var aisle2 = findViewById<Button>(R.id.mensBtn)
     }
 }
