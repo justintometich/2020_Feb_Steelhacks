@@ -1,7 +1,10 @@
 package com.example.a2020_feb_steelhacks
 
+import android.annotation.TargetApi
+import android.os.Build
 import android.os.Bundle
 import android.widget.Button
+import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.marginLeft
 import androidx.core.view.marginTop
@@ -16,25 +19,21 @@ class MainActivity : AppCompatActivity() {
     var userSearchQueries = arrayOfNulls<String>(3)
 
     var client = OkHttpClient()
+    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         button1.setOnClickListener {
-            val storeId = editText.text.toString()
-            val productName = editText2.text.toString()
+            val storeId = productInput.text.toString()
+            val productName = storeIdInput.text.toString()
             findProduct(productName, storeId)
         }
 
         //findProduct("toilet+paper", "2757")
 
-        locationIcon.x = mensBtn.marginLeft.toFloat()
-        locationIcon.y = mensBtn.marginTop.toFloat() + 350.0.toFloat()
+        //locationIcon.x = mensBtn.marginLeft.toFloat()
+        //locationIcon.y = mensBtn.marginTop.toFloat() + 350.0.toFloat()
     }
-
-    fun searchButtonHandler(){
-
-    }
-
 
 
     fun findProduct(productName: String, storeId: String) {
@@ -51,6 +50,7 @@ class MainActivity : AppCompatActivity() {
                 println(e)
             }
 
+            @RequiresApi(Build.VERSION_CODES.HONEYCOMB)
             override fun onResponse(call: Call, response: Response) {
                 val responseStr = response.body?.string()
                 try {
@@ -59,30 +59,31 @@ class MainActivity : AppCompatActivity() {
                     val items = searchResponse.getJSONObject("items")
                     val item = items.getJSONArray("Item")
                     for (i in 0 until item.length()) {
-                        val productTcin = item.getJSONObject(i).getString("tcin")
-                        targetGetRequest(productTcin)
+                        var productTcin = item.getJSONObject(i).getString("tcin")
+                        //targetGetRequest(productTcin)
                         val price = item.getJSONObject(i).getJSONObject("price").getString("current_retail").toFloat()
-                    var productTcin = ""
-                    try {
-                        productTcin = item.getJSONObject(0).getString("tcin")
-                    } catch (e: Error) {
+                        //var productTcin = ""
+                        try {
+                            productTcin = item.getJSONObject(0).getString("tcin")
+                        } catch (e: Error) {
 
-                    }
-                    targetGetRequest(productTcin) {
-                            if (it == 1) {
+                        }
+                        targetGetRequest(productTcin) {
+                            if (it%4 > 2) {
                                 locationIcon.x = mensBtn.marginLeft.toFloat()
                                 locationIcon.y = mensBtn.marginTop.toFloat()
-                            } else if (it == 50) {
+                            } else if (it%4 > 1) {
                                 locationIcon.x = menswearBtn.marginLeft.toFloat() + 50.toFloat()
                                 locationIcon.y = menswearBtn.marginTop.toFloat() - 100.toFloat()
-                            } else if (it == 7) {
+                            } else if (it%4 > 0) {
                                 locationIcon.x = shoesBtn.marginLeft.toFloat()
-                                locationIcon.y = shoesBtn.marginTop.toFloat()- 90.toFloat()
-                            } else if (it == 18) {
+                                locationIcon.y = shoesBtn.marginTop.toFloat() - 90.toFloat()
+                            } else {
                                 locationIcon.x = homeStorageBtn.marginLeft.toFloat()
                                 locationIcon.y = homeStorageBtn.marginTop.toFloat() - 150.toFloat()
                             }
                         }
+                    }
                 } catch (e: Error) {
                     println(e)
                 }
